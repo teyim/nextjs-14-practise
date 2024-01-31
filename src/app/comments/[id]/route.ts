@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { comments } from "../data";
 
 type RequestParams = {
@@ -10,10 +11,9 @@ export async function GET(request: Request, { params }: RequestParams) {
   const comment = comments.find(
     (comment) => comment.id === parseInt(params.id)
   );
-  if (!comment) {
-    return new Response("comment not found", {
-      status: 404,
-    });
+  if (parseInt(params.id) > comments.length) {
+    // redirects user to different route
+    redirect("/comments");
   }
   return Response.json(comment);
 }
