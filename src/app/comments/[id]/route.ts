@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { type NextRequest } from "next/server";
 import { comments } from "../data";
 
 type RequestParams = {
@@ -7,7 +8,9 @@ type RequestParams = {
   };
 };
 
-export async function GET(request: Request, { params }: RequestParams) {
+export async function GET(request: NextRequest, { params }: RequestParams) {
+  const requestHeaders = new Headers(request.headers);
+  console.log(requestHeaders.get("user-agent"));
   const comment = comments.find(
     (comment) => comment.id === parseInt(params.id)
   );
@@ -18,9 +21,11 @@ export async function GET(request: Request, { params }: RequestParams) {
   return Response.json(comment);
 }
 
-export async function PATCH(request: Request, { params }: RequestParams) {
+export async function PATCH(request: NextRequest, { params }: RequestParams) {
   const updatedcommment = await request.json();
   const commentId = parseInt(params.id);
+  const theme = request.cookies.get("theme");
+  console.log(theme);
 
   comments[commentId - 1] = {
     id: commentId,
@@ -30,6 +35,7 @@ export async function PATCH(request: Request, { params }: RequestParams) {
   return new Response(JSON.stringify(comments[commentId - 1]), {
     headers: {
       "Content-type": "application/json",
+      "set-Cookie": "theme=dark",
     },
     status: 200,
   });
